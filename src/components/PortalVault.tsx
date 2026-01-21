@@ -3,28 +3,42 @@
 import React, { useState } from 'react';
 import { Lock, Eye, EyeOff, Save, ShieldCheck, Database, Globe } from 'lucide-react';
 
-export default function PortalVault() {
-    const [showPass, setShowPass] = useState<Record<string, boolean>>({});
-    const [credentials, setCredentials] = useState({
-        tenderBoard: { user: '', pass: '' },
-        omran: { user: '', pass: '' },
-        pdo: { user: '', pass: '' },
-        jsrs: { user: '', pass: '' },
-        bnc: { user: '', pass: '' }
-    });
+type PortalKey = 'tenderBoard' | 'omran' | 'pdo' | 'jsrs' | 'bnc';
+type PortalField = 'user' | 'pass';
+type PortalCredentials = Record<PortalKey, { user: string; pass: string }>;
 
-    const toggleVisibility = (key: string) => {
+const DEFAULT_CREDENTIALS: PortalCredentials = {
+    tenderBoard: { user: '', pass: '' },
+    omran: { user: '', pass: '' },
+    pdo: { user: '', pass: '' },
+    jsrs: { user: '', pass: '' },
+    bnc: { user: '', pass: '' }
+};
+
+const DEFAULT_VISIBILITY: Record<PortalKey, boolean> = {
+    tenderBoard: false,
+    omran: false,
+    pdo: false,
+    jsrs: false,
+    bnc: false
+};
+
+export default function PortalVault() {
+    const [showPass, setShowPass] = useState<Record<PortalKey, boolean>>(DEFAULT_VISIBILITY);
+    const [credentials, setCredentials] = useState<PortalCredentials>(DEFAULT_CREDENTIALS);
+
+    const toggleVisibility = (key: PortalKey) => {
         setShowPass(prev => ({ ...prev, [key]: !prev[key] }));
     };
 
-    const handleChange = (portal: string, field: 'user' | 'pass', value: string) => {
+    const handleChange = (portal: PortalKey, field: PortalField, value: string) => {
         setCredentials(prev => ({
             ...prev,
-            [portal]: { ...prev[portal as keyof typeof prev], [field]: value }
+            [portal]: { ...prev[portal], [field]: value }
         }));
     };
 
-    const handleSave = (portal: string) => {
+    const handleSave = (portal: PortalKey) => {
         alert(`${portal.toUpperCase()} Synchronized with Sovereign Intelligence Cloud`);
     };
 
@@ -101,7 +115,17 @@ export default function PortalVault() {
     );
 }
 
-function PortalAuthCard({ name, icon, creds, show, onToggle, onChange, onSave }: any) {
+interface PortalAuthCardProps {
+    name: string;
+    icon: React.ReactNode;
+    creds: { user: string; pass: string };
+    show: boolean;
+    onToggle: () => void;
+    onChange: (field: PortalField, value: string) => void;
+    onSave: () => void;
+}
+
+function PortalAuthCard({ name, icon, creds, show, onToggle, onChange, onSave }: PortalAuthCardProps) {
     return (
         <div className="p-6 rounded-[2rem] bg-white border border-slate-100 shadow-sm hover:shadow-md transition-shadow group">
             <div className="flex items-center gap-3 mb-6">
